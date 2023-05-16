@@ -10,6 +10,7 @@ from typing import Dict, List, Optional, Tuple
 import ray
 import torch
 from accelerate import Accelerator  # type: ignore
+from accelerate.tracking import GeneralTracker
 from ray.air import session
 from rich.console import Console
 from rich.table import Table
@@ -124,11 +125,11 @@ class AccelerateRLTrainer(BaseRLTrainer):
                     project_name=self.config.train.project_name,
                     config=config_dict_flat,
                 )
-            elif config.train.tracker is None:
+            elif config.train.tracker is None or isinstance(config.train.tracker, GeneralTracker):
                 self.accelerator.init_trackers(project_name=self.config.train.project_name)
             else:
                 raise ValueError(
-                    f"Only supported trackers are `wandb` and `tensorboard`. Got: `{config.train.tracker}`. "
+                    f"Only supported trackers are `wandb`, `tensorboard` or `GeneralTracker` instance. Got: `{config.train.tracker}`. "
                     "Set `tracker` to `None` to disable tracking."
                 )
 
